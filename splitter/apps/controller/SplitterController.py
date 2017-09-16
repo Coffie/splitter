@@ -6,12 +6,15 @@ Created on Fri Sep 15 02:12:20 2017
 @author: erlendvollset
 """
 
-import util.helpers as helpers
+from splitter.apps.group.models import Group
+from splitter.apps.userprofile.models import UserProfile, Transaction
+# import util.helpers as helpers
+import splitter.apps.util.helpers as helpers
 
-from api import dnb as dnb_api
-from ml.transaction_classifier import Classifier
-from splitter.group.models import Group
-from splitter.userprofile.models import UserProfile, Transaction
+# from api import dnb as dnb_api
+import splitter.apps.api.dnb as dnb_api
+from splitter.apps.ml.transaction_classifier import Classifier
+# from transaction_classifier import Classifier
 
 class SplitterController:
     def __init__(self):

@@ -7,7 +7,8 @@ Created on Fri Sep 15 20:12:20 2017
 """
 
 import requests
-import util.helpers as helpers
+# import util.helpers as helpers
+import splitter.apps.util.helpers as helpers
 import json
 
 API_KEY = "d018eb95-ff43-3314-a8d6-55696f9ba202"

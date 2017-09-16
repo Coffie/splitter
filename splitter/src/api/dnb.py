@@ -9,11 +9,11 @@ Created on Fri Sep 15 20:12:20 2017
 import requests
 
 def main():
-    customer1 = get_customer_details('19078984062')
+    customer1 = get_customer('19078984062')
     print(customer1["firstName"], customer1["personalNumber"])
 
 
-def get_customer_details(customerId):
+def get_customer(customerId):
     url = "https://dnbapistore.com/hackathon/customers/1.0/customer/{}".format(customerId)
     headers = {'Authorization': 'Bearer d018eb95-ff43-3314-a8d6-55696f9ba202', 'Accept': 'application/json'}
     r = requests.get(url, headers=headers)
@@ -21,7 +21,7 @@ def get_customer_details(customerId):
     return d
 
 def get_account_overview():
-
+    print("hello")
 
 
 

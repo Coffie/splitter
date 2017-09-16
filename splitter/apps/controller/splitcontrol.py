@@ -60,6 +60,10 @@ class SplitterController:
                                         "Tilbakebetaling til {}".format(user.username))
         self.update_data()
 
+    def get_primary_account_balance(self, user_id):
+        accounts = dnb_api.get_accounts(user_id)
+        if accounts:
+            return accounts[0]["accountBalance"]
 
     def update_data(self):
         # update database with data from api

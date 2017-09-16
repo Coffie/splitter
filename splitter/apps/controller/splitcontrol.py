@@ -6,15 +6,14 @@ Created on Fri Sep 15 02:12:20 2017
 @author: erlendvollset
 """
 
+import datetime
+import pytz
 from splitter.apps.group.models import Group
 from splitter.apps.userprofile.models import UserProfile, Transaction
-# import util.helpers as helpers
 import splitter.apps.util.helpers as helpers
 
-# from api import dnb as dnb_api
 import splitter.apps.api.dnb as dnb_api
 from splitter.apps.ml.transaction_classifier import Classifier
-# from transaction_classifier import Classifier
 
 class SplitterController:
     def __init__(self):
@@ -27,18 +26,16 @@ class SplitterController:
         return UserProfile.objects.get(customer_id=user_id)
 
     def get_all_users_in_group(self, group_id):
-        group = self.get_group(group_id)
-        return [u for u in UserProfile.objects.filter(group)]
+        return [u for u in UserProfile.objects.filter(group_id=group_id)]
 
     def get_user_transactions(self, user_id):
-        user = self.get_user(user_id)
-        transactions = [t for t in Transaction.objects.filter(customer_id=user)]
+        transactions = [t for t in Transaction.objects.filter(customer_id=user_id)]
         return transactions
 
     def get_group_relevant_transactions(self, group_id):
         transactions = []
         group = Group.objects.get(group_id=group_id)
-        users = UserProfile.objects.filter(group=group)
+        users = UserProfile.objects.filter(group_id=group_id)
         for user in users:
             user_transactions = self.get_user_transactions(user.customer_id)
             transactions.extend([t for t in user_transactions if (t.relevant and group.created < t.timestamp)])
@@ -70,54 +67,61 @@ class SplitterController:
         for group in groups:
             users = self.get_all_users_in_group(group.group_id)
             for user in users:
-                new_transactions = dnb_api.get_transactions(user.user_id, user.account_id, group.last_updated, helpers.get_date_now())
-                old_transactions = self.get_user_transactions(user.user_id)
+                new_transactions = dnb_api.get_transactions(user.customer_id, user.account_id, group.last_updated.strftime('%m%d%Y'), '01082017')
+                old_transactions = self.get_user_transactions(user.customer_id)
                 for t in new_transactions:
                     if t["transactionID"] not in [t.transaction_id for t in old_transactions]:
-                        new_transaction = Transaction(transaction_id=t["transactionId"],
+                        timeStamp = t['timeStamp']
+                        if timeStamp[12:14] == "24":
+                            timeStamp = timeStamp[0:12] + "00" + timeStamp[14:]
+                        timestamp_pre = datetime.datetime.strptime(timeStamp, '%Y-%m-%d, %H:%M')
+                        timezone = pytz.timezone('UTC')
+                        timestamp_fin = timezone.localize(timestamp_pre)
+                        timestamp_fin = timestamp_fin.date()
+                        new_transaction = Transaction(transaction_id=str(t["transactionID"]),
                                                       customer=user,
-                                                      timestamp=t["timeStamp"],
+                                                      timestamp=timestamp_fin,
                                                       amount=t["amount"],
-                                                      description=t["Message/kid"],
-                                                      relevant=self.clf.predict([t["Message/kid"]])[0])
+                                                      description=t["message/KID"],
+                                                      relevant=self.clf.predict([t["message/KID"]])[0])
                         new_transaction.save()
             group.last_updated = helpers.get_date_now()
 
-def main():
-    controller = SplitterController()
+# def main():
+#     controller = SplitterController()
 
-    customer_id = '19078984062'
-    start_date = '01012017'
-    end_date = '17092017'
+#     customer_id = '19078984062'
+#     start_date = '01012017'
+#     end_date = '17092017'
 
-    # get customer
-    customer1 = dnb_api.get_customer(customer_id)
-    print("Customer: ", customer1["firstName"], customer1["personalNumber"], customer1["customerID"])
+#     # get customer
+#     customer1 = dnb_api.get_customer(customer_id)
+#     print("Customer: ", customer1["firstName"], customer1["personalNumber"], customer1["customerID"])
 
-    # get first account
-    accounts = dnb_api.get_accounts(customer_id)
-    first_account = accounts[0]
-    print("Primary Account: ", first_account)
+#     # get first account
+#     accounts = dnb_api.get_accounts(customer_id)
+#     first_account = accounts[0]
+#     print("Primary Account: ", first_account)
 
-    # make new payment
-    dnb_api.make_card_payment(first_account["accountNumber"], "300", "Rema1000")
+#     # make new payment
+#     dnb_api.make_card_payment(first_account["accountNumber"], "300", "Rema1000")
 
-    # get all transactions for first account
-    transactions = dnb_api.get_transactions(customer_id, first_account["accountNumber"], start_date, end_date)
-    for t in transactions:
-        print(t)
-    transaction_texts = [t["message/KID"] for t in transactions]
-    print("\nTransactions ")
-    predictions = controller.clf.predict(transaction_texts)
+#     # get all transactions for first account
+#     transactions = dnb_api.get_transactions(customer_id, first_account["accountNumber"], start_date, end_date)
+#     for t in transactions:
+#         print(t)
+#     transaction_texts = [t["message/KID"] for t in transactions]
+#     print("\nTransactions ")
+#     predictions = controller.clf.predict(transaction_texts)
 
-    # print transactions and labels
-    for t in zip(transactions, predictions):
-        prediction = t[1]
-        if prediction == '1':
-            print("Description: {}".format(t[0]["message/KID"]))
-            print("Amount: {}".format(t[0]["amount"]))
-            print("Label: {}".format("Food" if t[1] == '1' else 'Other'))
-            print()
+#     # print transactions and labels
+#     for t in zip(transactions, predictions):
+#         prediction = t[1]
+#         if prediction == '1':
+#             print("Description: {}".format(t[0]["message/KID"]))
+#             print("Amount: {}".format(t[0]["amount"]))
+#             print("Label: {}".format("Food" if t[1] == '1' else 'Other'))
+#             print()
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

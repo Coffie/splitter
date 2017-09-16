@@ -14,8 +14,9 @@ class UserProfile(models.Model):
 class Transaction(models.Model):
     transaction_id = models.BigIntegerField(primary_key=True)
     customer = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    date = models.DateTimeField()
+    timestamp = models.DateTimeField()
     amount = models.BigIntegerField()
     description = models.CharField(max_length=200)
+    relevant = models.BooleanField(default=False)
 
 

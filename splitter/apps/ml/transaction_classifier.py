@@ -18,8 +18,7 @@ from sklearn import metrics
 class Classifier():
     def __init__(self):
         curr_dir = os.path.dirname(os.path.realpath(__file__))
-        parent_dir = os.path.join(curr_dir, os.pardir)
-        data_path = os.path.join(parent_dir, "data/labeled_transactions.csv")
+        data_path = os.path.join(curr_dir, "labeled_transactions.csv")
 
         data = loadData(data_path)
 

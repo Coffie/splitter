@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from splitter.group.models import Group
+from splitter.apps.group.models import Group
 
 class UserProfile(models.Model):
     customer_id = models.BigIntegerField(primary_key=True)

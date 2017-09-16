@@ -1,6 +1,13 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from splitter.apps.api import dnb as dnb_api
+from splitter.apps.controller.splitcontrol import SplitterController
 
 def index(request):
     user = request.user
+    # accounts = dnb_api.get_accounts('07066363656')
+    ctr = SplitterController()
+    someone = ctr.get_user(user_id='07066363656')
+    return HttpResponse("<h3>{0}</h3>".format(someone))
 
     #TODO: Get necessary information to view

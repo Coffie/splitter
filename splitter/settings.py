@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'splitter.userprofile',
     'splitter.group',
-    'splitter.overview',
 ]
 
 MIDDLEWARE = [

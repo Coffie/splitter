@@ -24,6 +24,7 @@ def index(request):
 
     ctr.update_data()
     main_user_transactions = ctr.get_user_transactions(user_id=user.customer_id)
+    # accounts = dnb_api.get_accounts('07066363656')
     someone = ctr.get_user(user_id='07066363656')
 
     context = {

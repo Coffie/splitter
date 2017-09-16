@@ -44,6 +44,23 @@ class SplitterController:
             transactions.extend([t for t in user_transactions if (t.relevant and group.created < t.timestamp)])
         return transactions
 
+    def transfer_money(self, sender_account_num, receiver_account_num, amount, message):
+        dnb_api.transfer_funds(sender_account_num=sender_account_num,
+                               receiver_account_num=receiver_account_num,
+                               message=message,
+                               amount=amount)
+
+    def make_card_payment(self, user_id, amount, message):
+        user = self.get_user(user_id)
+        dnb_api.make_card_payment(sender_account_num=user.account_id, amount=amount, message=message)
+        if self.clf.predict([message]):
+            other_users = self.get_all_users_in_group(user.group.group_id)
+            for other_user in other_users:
+                if user != other_user:
+                    self.transfer_money(user.account_id, other_user.account_id, str(float(amount) / len(other_users)))
+        self.update_data()
+
+
     def update_data(self):
         # update database with data from api
         groups = Group.objects.all()

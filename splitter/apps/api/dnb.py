@@ -70,3 +70,5 @@ def make_card_payment(sender_account_num, amount, message):
 
 
 
+if __name__ == "__main__":
+    get_transactions("23088983723", "12084869860", "01012017", "01012017")

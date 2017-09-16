@@ -10,9 +10,11 @@ def index(request):
     cid = '23088983723'
     user = UserProfile.objects.get(customer_id=cid)
 
+    ctr.update_data()
     main_user_transactions = ctr.get_user_transactions(user_id=user.customer_id)
     # accounts = dnb_api.get_accounts('07066363656')
     someone = ctr.get_user(user_id='07066363656')
-    return HttpResponse("<h3>{0}</h3>".format(user.user.get_full_name()))
+    return HttpResponse("<h3>{0}</h3>".format(main_user_transactions))
+    return HttpResponse("<h3>{0}</h3>".format(user.customer_id))
 
     #TODO: Get necessary information to view

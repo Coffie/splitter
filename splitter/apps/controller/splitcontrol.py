@@ -32,7 +32,7 @@ class SplitterController:
 
     def get_user_transactions(self, user_id):
         user = self.get_user(user_id)
-        transactions = [t for t in Transaction.objects.filter(customer=user)]
+        transactions = [t for t in Transaction.objects.filter(customer_id=user)]
         return transactions
 
     def get_group_relevant_transactions(self, group_id):
@@ -57,7 +57,10 @@ class SplitterController:
             other_users = self.get_all_users_in_group(user.group.group_id)
             for other_user in other_users:
                 if user != other_user:
-                    self.transfer_money(user.account_id, other_user.account_id, str(float(amount) / len(other_users)))
+                    self.transfer_money(user.account_id,
+                                        other_user.account_id,
+                                        str(float(amount) / len(other_users)),
+                                        "Tilbakebetaling til {}".format(user.username))
         self.update_data()
 
 

@@ -36,7 +36,7 @@ class Classifier():
 
     def predict(self, X):
         predicted = self.model.predict(X)
-        return predicted
+        return [prediction == '1' for prediction in predicted]
 
     def evaluate(self):
         predicted = self.model.predict(self.X_test)

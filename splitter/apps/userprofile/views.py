@@ -5,6 +5,7 @@ from splitter.apps.controller.splitcontrol import SplitterController
 from .models import UserProfile, Transaction
 from splitter.apps.group.models import Group
 from .forms import PaymentForm
+import math
 
 def index(request):
     ctr = SplitterController()
@@ -18,7 +19,7 @@ def index(request):
     transaction_list = []
     for member in members:
         if member.customer_id != user.customer_id:
-            transaction_list.append(get_user_list_transactions(member.customer_id))
+            transaction_list.append(get_user_list_transactions(member.customer_id, ctr))
 
     group_transactions = ctr.get_group_relevant_transactions(group.group_id)
     total_group_expense = 0.0
@@ -37,20 +38,28 @@ def index(request):
             amount = request.POST['amount']
             message = request.POST['message']
             ctr.make_card_payment(user_id=user.customer_id, amount=amount, message=message)
+            member_list = get_member_lists(group, user.customer_id, ctr)
+            trans_list = []
+            group_transactions = ctr.get_group_relevant_transactions(group.group_id)
+            if len(group_transactions) > 10:
+                group_transactions = group_transactions[-9:]
+            for member in members:
+                if member.customer_id != user.customer_id:
+                    trans_list.append(get_user_list_transactions(member.customer_id, ctr))
+
+            form = PaymentForm()
             transactions = ctr.get_user_transactions(user_id=user.customer_id)[-9:]
             transactions = make_message_readable(transactions)
             balance = ctr.get_primary_account_balance(user_id=user.customer_id)
-            total_group_expense += float(amount)
-            member_list = get_member_lists(group, user.customer_id)
-            trans_list = []
-            for member in members:
-                if member.customer_id != user.customer_id:
-                    trans_list.append(get_user_list_transactions(member.customer_id))
 
+            total_group_expense = 0.0
+            for trans in group_transactions:
+                total_group_expense += float(trans.amount)
             
             context = {
                     'transactions': transactions,
                     'group': group,
+                    'group_transactions': group_transactions,
                     'user': user,
                     'balance': balance,
                     'form': form,
@@ -84,20 +93,20 @@ def make_message_readable(transactions):
         transaction.description = desc
     return transactions
 
-def get_user_list_transactions(user_id):
-    ctr = SplitterController()
+def get_user_list_transactions(user_id, ctr):
+    # ctr = SplitterController()
     transactions = ctr.get_user_transactions(user_id=user_id)[-9:]
     transactions = make_message_readable(transactions)
     return transactions
 
-def get_member_lists(group, sender):
-    ctr = SplitterController()
+def get_member_lists(group, sender, ctr):
+    # ctr = SplitterController()
     group_members = ctr.get_all_users_in_group(group_id=group.group_id)
     member_list = []
     for member in group_members:
         if member.customer_id == sender:
             continue
-        member_list.append(get_user_list_transactions(member.customer_id))
+        member_list.append(get_user_list_transactions(member.customer_id, ctr))
     return member_list
 
         

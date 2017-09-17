@@ -4,7 +4,8 @@
 <div class="container">
 	<div class="row">
 		<div class"col-md-6">
-			<h6>{{ user.user.get_full_name }}</h6>
+			<h5>{{ user.user.get_full_name }}</h5>
+			<h6>Available balance: {{ balance }}</h6>
 		</div>
 		<div class="col-xs-6">
 			<div class="table-responsive">
@@ -19,7 +20,7 @@
 					</thead>
 					{% for transaction in transactions %}
 					<tbody>
-						<th scope="row">tall</th>
+						<th scope="row">{{ forloop.counter }}</th>
 						<td>{{ transaction.description }}</td>
 						<td>{{ transaction.amount }}</td>
 					</tbody>
@@ -30,21 +31,80 @@
 		<div class="col-sm-6">
 			<form role="form" method="post" enctype="multipart/form-data">
 				{% csrf_token %}
-				<label>Description:</label>
-				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Description">
+				{{ form }}
+				<!-- <label>Description:</label> -->
+				<!-- <div class="input-group"> -->
+				<!-- 	<input type="text" class="form-control" placeholder="Description"> -->
+				<!-- </div> -->
+				<!-- <label>Amount:</label> -->
+				<!-- <div class="input-group"> -->
+				<!-- 	<input type="text" class="form-control" id="payment_amount" placeholder="kr"> -->
 				</div>
-				<label>Amount:</label>
-				<div class="input-group">
-					<input type="text" class="form-control" id="payment_amount" placeholder="kr">
-				</div>
-				<div class="button">
-					<a href="" type="button" class="btn">Make Payment</a>
-				</div>
+				<button type="submit" class="btn btn-danger">Make Payment</button>
 			</form>
 		</div>
 	</div>
 	<div class="container" id="group">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="table-responsive">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Description</th>
+								<th>Amount</th>
+							</tr>
+						</thead>
+						{% for trans in group_transactions %}
+						<tbody>
+							<th scope="row">{{ forloop.counter }}</th>
+							<td>{{ trans.description }}</td>
+							<td>{{ trans.amount }}</td>
+						</tbody>
+						{% endfor %}
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<h5>Shared costs</h5>
+				<a type="button" class="btn btn-success">Food</a>
+				<a type="button" class="btn btn-success">Transport</a>
+				<a type="button" class="btn btn-default">Shopping</a>
+				<br>
+				<div class="container">
+					<h5>Total expenses:</h5>
+					<h6>{{ total_group_expense }}</h6>
+				</div>
+			</div>
+			
+		</div>
+		<div class="container">
+			<div class="row">
+				{% for trans in transaction_list %}
+				<div class="col-md-6">
+					<div class="table-responsive">
+						<table class="table table-sm">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Description</th>
+									<th>Amount</th>
+								</tr>
+							</thead>
+							{% for transaction in trans %}
+							<tbody>
+								<th scope="row">{{ forloop.counter }}</th>
+								<td>{{ transaction.description }}</td>
+								<td>{{ transaction.amount }}</td>
+							</tbody>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+			</div>
+				{% endfor %}
+		</div>
 		
 	</div>
 </div>

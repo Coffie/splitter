@@ -46,24 +46,26 @@ class SplitterController:
                                receiver_account_num=receiver_account_num,
                                message=message,
                                amount=amount)
+        self.update_data()
 
     def make_card_payment(self, user_id, amount, message):
         user = self.get_user(user_id)
+        print(user_id)
         dnb_api.make_card_payment(sender_account_num=user.account_id, amount=amount, message=message)
-        if self.clf.predict([message]):
+        if self.clf.predict([message])[0]:
             other_users = self.get_all_users_in_group(user.group.group_id)
             for other_user in other_users:
                 if user != other_user:
-                    self.transfer_money(user.account_id,
-                                        other_user.account_id,
+                    self.transfer_money(other_user.account_id,
+                                        user.account_id,
                                         str(float(amount) / len(other_users)),
-                                        "Tilbakebetaling til {}".format(user.username))
+                                        "Tilbakebetaling til {}".format(user.user.username))
         self.update_data()
 
     def get_primary_account_balance(self, user_id):
         accounts = dnb_api.get_accounts(user_id)
         if accounts:
-            return accounts[0]["accountBalance"]
+            return accounts[0]["availableBalance"]
 
     def update_data(self):
         # update database with data from api
@@ -71,25 +73,31 @@ class SplitterController:
         for group in groups:
             users = self.get_all_users_in_group(group.group_id)
             for user in users:
-                new_transactions = dnb_api.get_transactions(user.customer_id, user.account_id, group.last_updated.strftime('%m%d%Y'), '01082017')
+                new_transactions = dnb_api.get_transactions(user.customer_id, user.account_id, group.last_updated.strftime('%d%m%Y'), datetime.datetime.now().strftime('%d%m%Y'))
                 old_transactions = self.get_user_transactions(user.customer_id)
                 for t in new_transactions:
                     if t["transactionID"] not in [t.transaction_id for t in old_transactions]:
                         timeStamp = t['timeStamp']
                         if timeStamp[12:14] == "24":
                             timeStamp = timeStamp[0:12] + "00" + timeStamp[14:]
+                        timeStamp = timeStamp.replace(".", ":")
                         timestamp_pre = datetime.datetime.strptime(timeStamp, '%Y-%m-%d, %H:%M')
                         timezone = pytz.timezone('UTC')
                         timestamp_fin = timezone.localize(timestamp_pre)
                         timestamp_fin = timestamp_fin.date()
+
+                        if 'message/KID' not in t.keys():
+                            t['message/KID'] = " "
+                        
                         new_transaction = Transaction(transaction_id=str(t["transactionID"]),
                                                       customer=user,
                                                       timestamp=timestamp_fin,
                                                       amount=t["amount"],
-                                                      description=t["message/KID"],
+                                                      description=t['message/KID'],
                                                       relevant=self.clf.predict([t["message/KID"]])[0])
                         new_transaction.save()
             group.last_updated = helpers.get_date_now()
+            group.save()
 
 # def main():
 #     controller = SplitterController()

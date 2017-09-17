@@ -5,6 +5,7 @@ from splitter.apps.controller.splitcontrol import SplitterController
 from .models import UserProfile, Transaction
 from splitter.apps.group.models import Group
 from .forms import PaymentForm
+import math
 
 def index(request):
     ctr = SplitterController()
@@ -14,19 +15,20 @@ def index(request):
     user = UserProfile.objects.get(customer_id=cid)
     name = user.user.get_full_name()
     group = ctr.get_group(user.group_id)
+    members = ctr.get_all_users_in_group(group_id=group.group_id)
+    transaction_list = []
+    for member in members:
+        if member.customer_id != user.customer_id:
+            transaction_list.append(get_user_list_transactions(member.customer_id, ctr))
+
     group_transactions = ctr.get_group_relevant_transactions(group.group_id)
+    total_group_expense = 0.0
+    for trans in group_transactions:
+        total_group_expense += float(trans.amount)
 
     main_user_transactions = ctr.get_user_transactions(user_id=user.customer_id)[-9:]
-    transactions = list(reversed(main_user_transactions))
-    for transaction in transactions:
-        desc = ""
-        desc += transaction.description[:14] + "..."
-        transaction.description = desc
+    transactions = make_message_readable(main_user_transactions)
 
-    # ctr.update_data()
-    main_user_transactions = ctr.get_user_transactions(user_id=user.customer_id)
-    # accounts = dnb_api.get_accounts('07066363656')
-    someone = ctr.get_user(user_id='07066363656')
     balance = ctr.get_primary_account_balance(user_id=user.customer_id)
 
 
@@ -34,25 +36,38 @@ def index(request):
         form = PaymentForm(request.POST)
         if form.is_valid():
             amount = request.POST['amount']
-            message = request.POST['description']
+            message = request.POST['message']
             ctr.make_card_payment(user_id=user.customer_id, amount=amount, message=message)
+            member_list = get_member_lists(group, user.customer_id, ctr)
+            trans_list = []
+            group_transactions = ctr.get_group_relevant_transactions(group.group_id)
+            if len(group_transactions) > 10:
+                group_transactions = group_transactions[-9:]
+            for member in members:
+                if member.customer_id != user.customer_id:
+                    trans_list.append(get_user_list_transactions(member.customer_id, ctr))
+
+            form = PaymentForm()
             transactions = ctr.get_user_transactions(user_id=user.customer_id)[-9:]
-            transactions = list(reversed(transaction))
-            for transaction in transactions:
-                desc = ""
-                desc += transaction.description[:14] + "..."
-                transaction.description = desc
+            transactions = make_message_readable(transactions)
             balance = ctr.get_primary_account_balance(user_id=user.customer_id)
+
+            total_group_expense = 0.0
+            for trans in group_transactions:
+                total_group_expense += float(trans.amount)
             
             context = {
                     'transactions': transactions,
                     'group': group,
+                    'group_transactions': group_transactions,
                     'user': user,
                     'balance': balance,
                     'form': form,
+                    'total_group_expense': total_group_expense,
+                    'transaction_list': trans_list,
+
                     }
             return render(request, 'userprofile/index.html', context)
-                    
 
     else:
         form = PaymentForm()
@@ -63,16 +78,37 @@ def index(request):
                 'user': user,
                 'balance': balance,
                 'form': form,
+                'total_group_expense': total_group_expense,
+                'transaction_list': transaction_list,
                 }
 
         return render(request, 'userprofile/index.html', context)
 
     
 def make_message_readable(transactions):
-    text = []
+    transactions = list(reversed(transactions))
     for transaction in transactions:
         desc = ""
         desc += transaction.description[:14] + "..."
         transaction.description = desc
     return transactions
+
+def get_user_list_transactions(user_id, ctr):
+    # ctr = SplitterController()
+    transactions = ctr.get_user_transactions(user_id=user_id)[-9:]
+    transactions = make_message_readable(transactions)
+    return transactions
+
+def get_member_lists(group, sender, ctr):
+    # ctr = SplitterController()
+    group_members = ctr.get_all_users_in_group(group_id=group.group_id)
+    member_list = []
+    for member in group_members:
+        if member.customer_id == sender:
+            continue
+        member_list.append(get_user_list_transactions(member.customer_id, ctr))
+    return member_list
+
+        
+    
 

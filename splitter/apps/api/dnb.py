@@ -22,8 +22,8 @@ def get(url):
 
 
 def put(url, body):
-    headers = {'Authorization': 'Bearer {}'.format(API_KEY), 'Accept': 'application/json'}
-    r = requests.put(url, headers=headers)
+    headers = {'Authorization': 'Bearer {}'.format(API_KEY), 'Accept': 'application/json', 'Content-Type': 'application/json'}
+    r = requests.put(url, headers=headers, data=body)
     return r.json()
 
 # Specific API endpoint calls
@@ -63,12 +63,25 @@ def make_card_payment(sender_account_num, amount, message):
         "amount": str(amount),
         "paymentDate": helpers.get_date_now()
     }
-    print(json.dumps(body))
-    # response = put(url, json.dumps(body))
-    # print(response)
-    # return response["paymentStatus"], response["paymentIDNumber"]
+    response = put(url, json.dumps(body))
+    print(response)
+    return response["paymentStatus"], response["paymentIDNumber"]
 
 
 
 if __name__ == "__main__":
-    get_transactions("23088983723", "12084869860", "01012017", "01012017")
+
+    # get_transactions("23088983723", "12084869860", "01012017", "01012017")
+    print(get_accounts("23088983723")[0])
+    account1 = get_accounts("23088983723")[0]
+    account2 = get_accounts("23088983723")[1]
+
+    print(account1["availableBalance"], account2["availableBalance"])
+
+    #transfer_funds(account1["accountNumber"], account2["accountNumber"], "transfer between accounts", "300")
+
+    print(account1["availableBalance"], account2["availableBalance"])
+
+    #make_card_payment("12084476780", "500", "money fo grammy")
+
+    print(account1["availableBalance"], account2["availableBalance"])

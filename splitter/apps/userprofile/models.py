@@ -12,7 +12,7 @@ class UserProfile(models.Model):
         return self.user.get_full_name()
     
 class Transaction(models.Model):
-    transaction_id = models.CharField(primary_key=True, max_length=32)
+    transaction_id = models.CharField(max_length=32)
     customer = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
     amount = models.CharField(max_length=32)

@@ -38,8 +38,16 @@ class SplitterController:
         users = UserProfile.objects.filter(group_id=group_id)
         for user in users:
             user_transactions = self.get_user_transactions(user.customer_id)
-            transactions.extend([t for t in user_transactions if (t.relevant and group.created < t.timestamp)])
+            transactions.extend([t for t in user_transactions if (t.relevant and (t.timestamp - group.created).days >= -1)])
         return transactions
+
+    def get_group_total_expenses(self, group_id):
+        relevant_transactions = self.get_group_relevant_transactions(group_id)
+        total = 0.0
+        for transaction in relevant_transactions:
+            total += float(transaction.amount)
+        return total
+
 
     def transfer_money(self, sender_account_num, receiver_account_num, amount, message):
         dnb_api.transfer_funds(sender_account_num=sender_account_num,

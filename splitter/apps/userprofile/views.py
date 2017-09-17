@@ -20,17 +20,21 @@ def index(request):
     for member in members:
         if member.customer_id != user.customer_id:
             transaction_list.append(get_user_list_transactions(member.customer_id, ctr))
+    transaction_list_a = transaction_list[0]
+    user_a = transaction_list_a[0].customer
+    transaction_list_b = transaction_list[1]
+    user_b = transaction_list_b[0].customer
 
     group_transactions = ctr.get_group_relevant_transactions(group.group_id)
-    total_group_expense = 0.0
-    for trans in group_transactions:
-        total_group_expense += float(trans.amount)
+    total_group_expense = ctr.get_group_total_expenses(group.group_id)
 
     main_user_transactions = ctr.get_user_transactions(user_id=user.customer_id)[-9:]
     transactions = make_message_readable(main_user_transactions)
 
     balance = ctr.get_primary_account_balance(user_id=user.customer_id)
 
+    if len(group_transactions) > 10:
+        group_transactions = group_transactions[-9:]
 
     if request.method == 'POST':
         form = PaymentForm(request.POST)
@@ -39,22 +43,27 @@ def index(request):
             message = request.POST['message']
             ctr.make_card_payment(user_id=user.customer_id, amount=amount, message=message)
             member_list = get_member_lists(group, user.customer_id, ctr)
-            trans_list = []
+            transaction_list = []
             group_transactions = ctr.get_group_relevant_transactions(group.group_id)
-            if len(group_transactions) > 10:
-                group_transactions = group_transactions[-9:]
             for member in members:
                 if member.customer_id != user.customer_id:
-                    trans_list.append(get_user_list_transactions(member.customer_id, ctr))
+                    transaction_list.append(get_user_list_transactions(member.customer_id, ctr))
+
+            transaction_list_a = transaction_list[0]
+            user_a = transaction_list_a[0].customer
+            transaction_list_b = transaction_list[1]
+            user_b = transaction_list_b[0].customer
 
             form = PaymentForm()
             transactions = ctr.get_user_transactions(user_id=user.customer_id)[-9:]
             transactions = make_message_readable(transactions)
             balance = ctr.get_primary_account_balance(user_id=user.customer_id)
 
-            total_group_expense = 0.0
-            for trans in group_transactions:
-                total_group_expense += float(trans.amount)
+            total_group_expense = ctr.get_group_total_expenses(group.group_id)
+
+
+            if len(group_transactions) > 10:
+                group_transactions = group_transactions[-9:]
             
             context = {
                     'transactions': transactions,
@@ -64,8 +73,10 @@ def index(request):
                     'balance': balance,
                     'form': form,
                     'total_group_expense': total_group_expense,
-                    'transaction_list': trans_list,
-
+                    'transaction_list_a': transaction_list_a,
+                    'user_a': user_a,
+                    'transaction_list_b': transaction_list_b,
+                    'user_b': user_b,
                     }
             return render(request, 'userprofile/index.html', context)
 
@@ -79,7 +90,10 @@ def index(request):
                 'balance': balance,
                 'form': form,
                 'total_group_expense': total_group_expense,
-                'transaction_list': transaction_list,
+                'transaction_list_a': transaction_list_a,
+                'user_a': user_a,
+                'transaction_list_b': transaction_list_b,
+                'user_b': user_b,
                 }
 
         return render(request, 'userprofile/index.html', context)

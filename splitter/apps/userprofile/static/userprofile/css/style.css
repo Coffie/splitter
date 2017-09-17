@@ -26,9 +26,19 @@
     font-style: italic;
 }
 table {
-	width: 100%;
 	border-collapse: collapse;
+	max-widht: 500px;
 	float: left;
+
+}
+
+th {
+	background-color: #00A66F;
+}
+
+div.container {
+	padding: 10px;
+	border: 
 }
 
 td:nth-of-body(odd) {

@@ -1,13 +1,11 @@
 {% extends 'userprofile/base.html' %}
 {% block body %}
-
+<h2 style="text-align: center;">Splitter for Group {{ group.name }}</h2>
 <div class="container">
 	<div class="row">
-		<div class"col-lg-4 col-md-6 col-xs-12">
+		<div class"col-lg-2 col-md-4 col-xs-8">
 			<h5>{{ user.user.get_full_name }}</h5>
 			<h6>Available balance: {{ balance }}</h6>
-		</div>
-		<div class="col-xs-6">
 			<div class="table-responsive">
 				<h6>Latest transactions:</h6>
 				<table class="table table-sm">
@@ -28,27 +26,13 @@
 				</table>
 			</div>
 		</div>
-		<div class="col-sm-6">
-			<form role="form" method="post" enctype="multipart/form-data">
-				{% csrf_token %}
-				{{ form }}
-				<!-- <label>Description:</label> -->
-				<!-- <div class="input-group"> -->
-				<!-- 	<input type="text" class="form-control" placeholder="Description"> -->
-				<!-- </div> -->
-				<!-- <label>Amount:</label> -->
-				<!-- <div class="input-group"> -->
-				<!-- 	<input type="text" class="form-control" id="payment_amount" placeholder="kr"> -->
-				</div>
-				<button type="submit" class="btn btn-danger">Make Payment</button>
-			</form>
-		</div>
 	</div>
-	<div class="container" id="group">
-		<div class="row">
-			<div class="col-md-6">
+	<div class="row">
+		<div class="container" id="group">
+			<div class="col-lg-6 col-md-8 col-xs-12">
 				<div class="table-responsive">
 					<table class="table table-striped" id="groupTable">
+						<h5 style="text-align: center;">Group overview:</h5>
 						<thead>
 							<tr>
 								<th>#</th>
@@ -81,10 +65,10 @@
 		</div>
 		<div class="container">
 			<div class="row">
-				<div class="col-lg-4 col-md-6 col-xs-8">
+				<div class="col-lg-4 col-md-6 col-xs-8 well well-sm">
 					<div class="table-responsive">
 						<table class="table table-sm">
-							<h5>{{ user_a.user.get_full_name }}</h5>
+							<h5 style="text-align: center;">{{ user_a.user.get_full_name }}</h5>
 							<thead>
 								<tr>
 									<th>#</th>
@@ -104,10 +88,10 @@
 				<!-- </div> -->
 			</div>
 			<!-- <div class="row"> -->
-				<div class="col-lg-4 col-md-6 col-xs-8">
+				<div class="col-lg-4 col-md-6 col-xs-8 well well-sm">
 					<div class="table-responsive">
 						<table class="table table-sm">
-							<h5>{{ user_b.user.get_full_name }}</h5>
+							<h5 style="text-align: center;">{{ user_b.user.get_full_name }}</h5>
 							<thead>
 								<tr>
 									<th>#</th>
@@ -127,7 +111,14 @@
 				</div>
 			</div>
 		</div>
-		
+	<div class="container well">
+		<div class="col-sm-6">
+			<form role="form" method="post" enctype="multipart/form-data">
+				{% csrf_token %}
+				{{ form }}
+				<button type="submit" class="btn btn-danger">Make Payment</button>
+			</form>
+		</div>
 	</div>
 </div>
 

@@ -27,6 +27,25 @@
 				</table>
 			</div>
 		</div>
+		<div class="col-sm-6">
+			<form role="form" method="post" enctype="multipart/form-data">
+				{% csrf_token %}
+				<label>Description:</label>
+				<div class="input-group">
+					<input type="text" class="form-control" placeholder="Description">
+				</div>
+				<label>Amount:</label>
+				<div class="input-group">
+					<input type="text" class="form-control" id="payment_amount" placeholder="kr">
+				</div>
+				<div class="button">
+					<a href="" type="button" class="btn">Make Payment</a>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="container" id="group">
+		
 	</div>
 </div>
 

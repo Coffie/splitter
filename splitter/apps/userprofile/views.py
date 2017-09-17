@@ -20,9 +20,9 @@ def index(request):
     for member in members:
         if member.customer_id != user.customer_id:
             transaction_list.append(get_user_list_transactions(member.customer_id, ctr))
-    transaction_list_a = transaction_list[0]
+    transaction_list_a = transaction_list[0][:5]
     user_a = transaction_list_a[0].customer
-    transaction_list_b = transaction_list[1]
+    transaction_list_b = transaction_list[1][:5]
     user_b = transaction_list_b[0].customer
 
     group_transactions = ctr.get_group_relevant_transactions(group.group_id)
@@ -34,7 +34,7 @@ def index(request):
     balance = ctr.get_primary_account_balance(user_id=user.customer_id)
 
     if len(group_transactions) > 10:
-        group_transactions = group_transactions[-9:]
+        group_transactions = list(reversed(group_transactions[-9:]))
 
     if request.method == 'POST':
         form = PaymentForm(request.POST)
@@ -49,9 +49,9 @@ def index(request):
                 if member.customer_id != user.customer_id:
                     transaction_list.append(get_user_list_transactions(member.customer_id, ctr))
 
-            transaction_list_a = transaction_list[0]
+            transaction_list_a = transaction_list[0][-5:]
             user_a = transaction_list_a[0].customer
-            transaction_list_b = transaction_list[1]
+            transaction_list_b = transaction_list[1][-5:]
             user_b = transaction_list_b[0].customer
 
             form = PaymentForm()
@@ -103,7 +103,7 @@ def make_message_readable(transactions):
     transactions = list(reversed(transactions))
     for transaction in transactions:
         desc = ""
-        desc += transaction.description[:14] + "..."
+        desc += transaction.description[:25] + "..."
         transaction.description = desc
     return transactions
 

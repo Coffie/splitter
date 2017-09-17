@@ -3,11 +3,16 @@
 <h2 style="text-align: center;">Splitter for Group {{ group.name }}</h2>
 <div class="container">
 	<div class="row">
-		<div class"col-lg-2 col-md-4 col-xs-8">
-			<h5>{{ user.user.get_full_name }}</h5>
-			<h6>Available balance: {{ balance }}</h6>
+		<div class="col-lg-4 col-md-12 col-xs-12">
+			<div class="row row-flex">
+				<div class="col-lg-7 col-md-8 col-xs-8">
+					<h5><span class="glyphicon glyphicon-user"></span> {{ user.user.get_full_name }}</h5>
+					<h6><span class="glyphicon glyphicon-usd"></span> Balance: {{ balance }}</h6>
+				</div>
+				<div class="col-lg-4 col-lg-offset-1 col-md-offset-2 col-xs-2 col-xs-offset-2"><img src="../static/adelel.jpg" class="img-responsive img-circle"></div>
+			</div>
 			<div class="table-responsive">
-				<h6>Latest transactions:</h6>
+				<h6><span class="glyphicon glyphicon-tasks"></span> Latest transactions</h6>
 				<table class="table table-sm">
 					<thead>
 						<tr>
@@ -26,46 +31,48 @@
 				</table>
 			</div>
 		</div>
-	</div>
-	<div class="row">
+
 		<div class="container" id="group">
-			<div class="col-lg-6 col-md-8 col-xs-12">
+			<div class="col-lg-8 col-md-12 col-xs-12">
+				<div class="row row-flex">
+					<div class="col-lg-4 col-md-6 col-xs-6">
+						<h5><span class="glyphicon glyphicon-eye-open"></span> Group overview</h5>
+						<h6><span class="glyphicon glyphicon-usd"></span> Total expenses: {{ total_group_expense }}</h6>
+					</div><div class="col-lg-8 col-md-6 text-right col-xs-6">
+						<h5>Shared costs</h5>
+						<a type="button" class="btn btn-success">Food</a>
+						<a type="button" class="btn btn-success">Transport</a>
+						<a type="button" class="btn btn-default">Shopping</a>
+					</div>
+				</div>
 				<div class="table-responsive">
+					<h6><span class="glyphicon glyphicon-tasks"></span> Latest transactions</h6>
 					<table class="table table-striped" id="groupTable">
-						<h5 style="text-align: center;">Group overview:</h5>
 						<thead>
 							<tr>
 								<th>#</th>
 								<th>Description</th>
+								<th>Payer</th>
 								<th>Amount</th>
+
 							</tr>
 						</thead>
 						{% for trans in group_transactions %}
 						<tbody>
 							<th scope="row">{{ forloop.counter }}</th>
 							<td>{{ trans.description }}</td>
+							<td>{{ trans.customer.user.get_full_name }}</td>
 							<td>{{ trans.amount }}</td>
 						</tbody>
 						{% endfor %}
 					</table>
 				</div>
 			</div>
-			<div class="row">
-				<h5>Shared costs</h5>
-				<a type="button" class="btn btn-success">Food</a>
-				<a type="button" class="btn btn-success">Transport</a>
-				<a type="button" class="btn btn-default">Shopping</a>
-				<br>
-				<div class="container">
-					<h5>Total expenses:</h5>
-					<h6>{{ total_group_expense }}</h6>
-				</div>
-			</div>
-			
 		</div>
 		<div class="container">
+			<h5><span class="glyphicon glyphicon-heart"></span> Other Users in Group</h5>
 			<div class="row">
-				<div class="col-lg-4 col-md-6 col-xs-8 well well-sm">
+				<div class="col-xs-6 well well-sm">
 					<div class="table-responsive">
 						<table class="table table-sm">
 							<h5 style="text-align: center;">{{ user_a.user.get_full_name }}</h5>
@@ -88,7 +95,7 @@
 				<!-- </div> -->
 			</div>
 			<!-- <div class="row"> -->
-				<div class="col-lg-4 col-md-6 col-xs-8 well well-sm">
+				<div class="col-xs-6 well well-sm">
 					<div class="table-responsive">
 						<table class="table table-sm">
 							<h5 style="text-align: center;">{{ user_b.user.get_full_name }}</h5>
@@ -120,6 +127,7 @@
 			</form>
 		</div>
 	</div>
+</div>
 </div>
 
 {% endblock %}

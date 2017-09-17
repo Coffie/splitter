@@ -42,13 +42,9 @@ class Classifier():
         # print('SVM: %4f' % np.mean(predicted == Y_test))
         conf_matrixSVM = metrics.confusion_matrix(self.Y_test, predicted)
 
-
 def loadData(filename):
     return pd.read_csv(filename, encoding="utf-8", sep=";")
 
-
-# labels are in FailureModeCode
-# data under consideration is description text, NotificationInformation
 def get_XY_from_data(data):
     X = []
     Y = []
@@ -57,31 +53,6 @@ def get_XY_from_data(data):
             X.append(str(data["details"][i]))
             Y.append(str(data["label"][i]))
     return X, Y
-
-
-# this function will be replaced when using Pipeline
-def tokenize(data):
-    countVect = CountVectorizer()
-    XTrainCounts = countVect.fit_transform(data)
-    tfTransformer = TfidfTransformer(use_idf=False).fit(XTrainCounts)
-    XTrainTf = tfTransformer.transform(XTrainCounts)
-    return XTrainTf, countVect, tfTransformer
-
-
-# this function will be replaced when using Pipeline
-# def fit_Naive_Bayes(inputs, labels):
-#     clf = MultinomialNB().fit(inputs, labels)
-#     return clf
-#
-#
-# def train_naive_bayes(X, Y):
-#     text_clf = Pipeline([('vect', CountVectorizer()),
-#                          ('tfidf', TfidfTransformer()),
-#                          ('clf', MultinomialNB()),
-#                          ])
-#     text_clf = text_clf.fit(X, Y)
-#     return text_clf
-
 
 def train_SVM(X, Y):
     text_clf = Pipeline([('vect', CountVectorizer()),

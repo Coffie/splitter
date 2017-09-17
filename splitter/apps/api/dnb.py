@@ -64,24 +64,51 @@ def make_card_payment(sender_account_num, amount, message):
         "paymentDate": helpers.get_date_now()
     }
     response = put(url, json.dumps(body))
-    print(response)
     return response["paymentStatus"], response["paymentIDNumber"]
-
 
 
 if __name__ == "__main__":
 
+    from ml.transaction_classifier import Classifier
+    clf = Classifier()
+    print(clf.predict(["test"]))
+
     # get_transactions("23088983723", "12084869860", "01012017", "01012017")
     print(get_accounts("23088983723")[0])
     account1 = get_accounts("23088983723")[0]
-    account2 = get_accounts("23088983723")[1]
+    print(get_accounts("23088983723")[1])
+    account1_2 = get_accounts("23088983723")[1]
+    print(get_accounts("08128234993")[0])
+    account2 = get_accounts("08128234993")[0]
+    print(get_accounts("07066363656")[0])
+    account3 = get_accounts("07066363656")[0]
 
-    print(account1["availableBalance"], account2["availableBalance"])
+    transactions = get_transactions("23088983723", account1['accountNumber'], "01012017", "17092017")
 
-    #transfer_funds(account1["accountNumber"], account2["accountNumber"], "transfer between accounts", "300")
 
-    print(account1["availableBalance"], account2["availableBalance"])
+    # print("acc1: ", account1["availableBalance"])
+    transactions = "acc1: " + str(get_transactions("23088983723", account1['accountNumber'], "01012017", "17092017")[-5:])
+    print(transactions)
+    transactions = "acc1_2: " + str(get_transactions("23088983723", account1_2['accountNumber'], "01012017", "17092017")[-5:])
+    print(transactions)
+    # print("acc2: ", account2["availableBalance"])
+    transactions = get_transactions("08128234993", account2['accountNumber'], "01012017", "17092017")[-5:]
+    print(transactions)
+    # print("acc3: ", account3["availableBalance"])
+    transactions = get_transactions("07066363656", account3['accountNumber'], "01012017", "17092017")[-5:]
+    print(transactions)
 
-    #make_card_payment("12084476780", "500", "money fo grammy")
+    # transfer_funds(account1["accountNumber"], account2["accountNumber"], "transfer between accounts", "666")
 
-    print(account1["availableBalance"], account2["availableBalance"])
+    print("acc1: ", account1["availableBalance"])
+    print("acc2: ", account2["availableBalance"])
+    print("acc3: ", account3["availableBalance"])
+
+
+
+    #
+    # print(account1["availableBalance"], account2["availableBalance"])
+    #
+    # make_card_payment("12084476780", "500", "money fo grammy")
+    #
+    # print(account1["availableBalance"], account2["availableBalance"])
